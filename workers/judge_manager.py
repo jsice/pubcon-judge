@@ -10,13 +10,6 @@ def judge_problem(language, code, inputs, outputs, time):
   judge.execute(time)
   return judge.status
 
-class CodeExecutor:
-    def __init__(self, code, time):
-        pass
-
-    def test(self, _input, _output):
-        return False
-
 class Judge:
   EXECUTORS = {
     'c': CExecutor,
