@@ -1,3 +1,10 @@
+from executors.c_executor import CExecutor
+from executors.java_executor import JavaExecutor
+from executors.python_executor import PythonExecutor
+from executors.base_executor import BaseExecutor
+
+from subprocess import CalledProcessError, TimeoutExpired
+
 def judge_problem(language, code, inputs, outputs, time):
   judge = Judge(language, code, inputs, outputs)
   judge.execute(time)
@@ -12,7 +19,9 @@ class CodeExecutor:
 
 class Judge:
   EXECUTORS = {
-    'python': CodeExecutor # To be implemented
+    'c': CExecutor,
+    'java': JavaExecutor,
+    'python': PythonExecutor
   }
 
   def __init__(self, language, code, inputs, outputs):
@@ -28,8 +37,21 @@ class Judge:
       _input = self.inputs[i]
       _output = self.outputs[i]
 
-      if executor.test(_input, _output):
-        self.status = 'YES'
-      else:
-        self.status = 'WAE'
+      try:
+        if executor.test(_input, _output):
+          self.status = 'YES'
+        else:
+          self.status = 'WAE'
+          break
+      except TimeoutExpired as error:
+        print(error)
+        self.status = 'TLE'
+        break
+      except CalledProcessError as error:
+        print(error)
+        self.status = 'RTE'
+        break
+      except BaseExecutor.CompilationError as error:
+        print(error)
+        self.status = 'CPE'
         break
