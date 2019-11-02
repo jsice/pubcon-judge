@@ -1,18 +1,13 @@
+from executors.base_executor import BaseExecutor
+
 def judge_problem(language, code, inputs, outputs, time):
   judge = Judge(language, code, inputs, outputs)
   judge.execute(time)
   return judge.status
 
-class CodeExecutor:
-    def __init__(self, code, time):
-        pass
-
-    def test(self, _input, _output):
-        return False
-
 class Judge:
   EXECUTORS = {
-    'python': CodeExecutor # To be implemented
+    'python': BaseExecutor
   }
 
   def __init__(self, language, code, inputs, outputs):
@@ -28,8 +23,13 @@ class Judge:
       _input = self.inputs[i]
       _output = self.outputs[i]
 
-      if executor.test(_input, _output):
-        self.status = 'YES'
-      else:
-        self.status = 'WAE'
+      try:
+        if executor.test(_input, _output):
+          self.status = 'YES'
+        else:
+          self.status = 'WAE'
+          break
+      except BaseExecutor.CompilationError as error:
+        print(error)
+        self.status = 'CPE'
         break
